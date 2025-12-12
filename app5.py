@@ -705,20 +705,29 @@ def init_pipeline(api_key):
 
 if not st.session_state.initialized and not st.session_state.auto_init:
     st.session_state.auto_init = True
-    with st.spinner("🎗️ Initializing Advanced Diagnostic Engine..."):
-        try:
-            pipeline = init_pipeline(GROQ_API_KEY)
-            if pipeline:
-                st.session_state.pipeline = pipeline
-                st.session_state.initialized = True
-            else:
-                st.warning("⚠️ Pipeline initialization skipped (models not available)")
-                st.session_state.initialized = True  # Still mark as initialized so app shows
-        except Exception as e:
-            st.warning(f"⚠️ Warning: {str(e)}")
-            st.session_state.initialized = True  # Still mark as initialized
-        time.sleep(0.5)
-
+    
+    # Check files exist
+    st.write("🔍 Checking files...")
+    st.write(f"Dataset exists: {os.path.exists('Dataset/clean_complete_multimodal_dataset.csv')}")
+    st.write(f"Model exists: {os.path.exists('mammography_retrieval_storage/models/cross_attention_best.pth')}")
+    st.write(f"Embeddings exist: {os.path.exists('mammography_retrieval_storage/embeddings/unified_768_embeddings.npy')}")
+    
+    try:
+        pipeline = init_pipeline(GROQ_API_KEY)
+        if pipeline:
+            st.session_state.pipeline = pipeline
+            st.success("✅ Pipeline loaded")
+        else:
+            st.session_state.pipeline = None
+            st.warning("⚠️ Pipeline returned None")
+        st.session_state.initialized = True
+    except Exception as e:
+        st.error(f"❌ Error: {str(e)}")
+        import traceback
+        st.code(traceback.format_exc())
+        st.session_state.pipeline = None
+        st.session_state.initialized = True
+        
 # ============================================================================
 # HELPER FUNCTIONS
 # ============================================================================
