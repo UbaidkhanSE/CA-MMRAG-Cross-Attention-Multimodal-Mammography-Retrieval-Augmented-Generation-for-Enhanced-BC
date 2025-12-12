@@ -883,58 +883,90 @@ with tab1:
     
     # ANALYSIS EXECUTION
     if analyze_btn:
-        if not uploaded_file:
-            st.error("❌ Please upload a medical image to proceed")
-        elif not query or len(query.strip()) < 20:
-            st.error("❌ Provide a detailed diagnostic query (minimum 20 characters)")
-        else:
-            temp_path = f"temp_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uploaded_file.name}"
-            try:
-                with open(temp_path, "wb") as f:
-                    f.write(uploaded_file.getbuffer())
+            # ✅ CHECK IF PIPELINE EXISTS FIRST
+            if st.session_state.pipeline is None:
+                st.error("❌ Pipeline not initialized - System Error")
+                st.warning("""
+                The AI model failed to load. This could be because:
+                - Model files are missing
+                - Insufficient memory
+                - Incompatible dependencies
                 
-                progress_placeholder = st.empty()
-                status_placeholder = st.empty()
-                
-                steps = [
-                    (5, "🔐 VALIDATING MEDICAL IMAGE"),
-                    (12, "📊 ANALYZING IMAGE PROPERTIES"),
-                    (20, "🧠 INITIALIZING RAG ENGINE"),
-                    (35, "📚 BUILDING DIAGNOSTIC INDEX"),
-                    (50, "🔍 RETRIEVING SIMILAR CASES"),
-                    (65, "🤖 GENERATING AI DIAGNOSIS"),
-                    (80, "📋 COMPUTING BASELINE"),
-                    (92, "📊 CALCULATING METRICS"),
-                    (100, "✅ ANALYSIS COMPLETE")
-                ]
-                
-                for prog, step in steps:
-                    status_placeholder.info(f"◆ {step}")
-                    progress_placeholder.progress(prog)
-                    time.sleep(0.4)
-                
-                result = process_case(st.session_state.pipeline, temp_path, query, 
-                                     pathology if pathology != "Unknown" else None,
-                                     birads.split("-")[0] if birads != "Unknown" else None)
-                
-                if result:
-                    st.session_state.current_results = result
-                    st.session_state.evaluation_history.append(result)
-                    st.session_state.case_count += 1
-                    add_chat("user", query, {"image": uploaded_file.name})
-                    add_chat("assistant", result['rag_response'], {"type": "rag"})
-                
-                progress_placeholder.empty()
-                status_placeholder.empty()
-                st.success("✅ ANALYSIS COMPLETED SUCCESSFULLY")
-                time.sleep(0.5)
-                st.rerun()
+                Try refreshing the page or contact support.
+                """)
+                st.stop()
             
-            except Exception as e:
-                st.error(f"❌ Analysis Error: {str(e)}")
-            finally:
-                if os.path.exists(temp_path):
-                    os.remove(temp_path)
+            # NOW CHECK USER INPUTS
+            if not uploaded_file:
+                st.error("❌ Please upload a medical image to proceed")
+            elif not query or len(query.strip()) < 20:
+                st.error("❌ Provide a detailed diagnostic query (minimum 20 characters)")
+            else:
+                temp_path = f"temp_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uploaded_file.name}"
+                try:
+                    # Save uploaded file temporarily
+                    with open(temp_path, "wb") as f:
+                        f.write(uploaded_file.getbuffer())
+                    
+                    # Progress indicators
+                    progress_placeholder = st.empty()
+                    status_placeholder = st.empty()
+                    
+                    # Analysis steps
+                    steps = [
+                        (5, "🔐 VALIDATING MEDICAL IMAGE"),
+                        (12, "📊 ANALYZING IMAGE PROPERTIES"),
+                        (20, "🧠 INITIALIZING RAG ENGINE"),
+                        (35, "📚 BUILDING DIAGNOSTIC INDEX"),
+                        (50, "🔍 RETRIEVING SIMILAR CASES"),
+                        (65, "🤖 GENERATING AI DIAGNOSIS"),
+                        (80, "📋 COMPUTING BASELINE"),
+                        (92, "📊 CALCULATING METRICS"),
+                        (100, "✅ ANALYSIS COMPLETE")
+                    ]
+                    
+                    # Show progress
+                    for prog, step in steps:
+                        status_placeholder.info(f"◆ {step}")
+                        progress_placeholder.progress(prog)
+                        time.sleep(0.4)
+                    
+                    # Process the case
+                    result = process_case(
+                        st.session_state.pipeline, 
+                        temp_path, 
+                        query, 
+                        pathology if pathology != "Unknown" else None,
+                        birads.split("-")[0] if birads != "Unknown" else None
+                    )
+                    
+                    # Store results if successful
+                    if result:
+                        st.session_state.current_results = result
+                        st.session_state.evaluation_history.append(result)
+                        st.session_state.case_count += 1
+                        add_chat("user", query, {"image": uploaded_file.name})
+                        add_chat("assistant", result['rag_response'], {"type": "rag"})
+                        
+                        # Clear progress and show success
+                        progress_placeholder.empty()
+                        status_placeholder.empty()
+                        st.success("✅ ANALYSIS COMPLETED SUCCESSFULLY")
+                        time.sleep(0.5)
+                        st.rerun()
+                    else:
+                        st.error("❌ Analysis failed - No result returned")
+                
+                except Exception as e:
+                    st.error(f"❌ Analysis Error: {str(e)}")
+                    import traceback
+                    traceback.print_exc()
+                
+                finally:
+                    # Clean up temp file
+                    if os.path.exists(temp_path):
+                        os.remove(temp_path)
+                        
     
     # ========== RESULTS DISPLAY ==========
     if st.session_state.current_results:
