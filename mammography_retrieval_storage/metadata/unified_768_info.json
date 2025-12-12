@@ -1,0 +1,11 @@
+{
+  "total_vectors": 6340,
+  "dimension": 768,
+  "clinical_cases": 2006,
+  "literature_chunks": 4334,
+  "storage_files": {
+    "embeddings": "unified_768_embeddings.npy",
+    "metadata": "unified_768_metadata.json",
+    "index": "unified_768_index.index"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "total_papers": 70,
+  "total_chunks": 4334,
+  "embedding_dimension": 768,
+  "original_biomedclip_dim": 512,
+  "padded_to_match_clinical": true,
+  "average_chunks_per_paper": 61.91428571428571,
+  "storage_path": "mammography_retrieval_storage\\literature"
+}

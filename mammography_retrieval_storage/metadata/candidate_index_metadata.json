@@ -1,0 +1,6 @@
+{
+  "index_type": "IndexFlatIP",
+  "dimension": 768,
+  "num_vectors": 272,
+  "created_for": "candidate_index"
+}

@@ -1,0 +1,6 @@
+{
+  "index_type": "IndexFlatIP",
+  "dimension": 512,
+  "num_vectors": 2006,
+  "created_for": "image_only_index"
+}

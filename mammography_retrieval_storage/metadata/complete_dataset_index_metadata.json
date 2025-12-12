@@ -1,0 +1,6 @@
+{
+  "index_type": "IndexFlatIP",
+  "dimension": 768,
+  "num_vectors": 2006,
+  "created_for": "complete_dataset_index"
+}
