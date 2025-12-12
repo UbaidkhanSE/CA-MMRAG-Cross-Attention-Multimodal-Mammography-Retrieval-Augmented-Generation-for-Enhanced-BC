@@ -706,11 +706,18 @@ def init_pipeline(api_key):
 if not st.session_state.initialized and not st.session_state.auto_init:
     st.session_state.auto_init = True
     with st.spinner("🎗️ Initializing Advanced Diagnostic Engine..."):
-        pipeline = init_pipeline(GROQ_API_KEY)
-        if pipeline:
-            st.session_state.pipeline = pipeline
-            st.session_state.initialized = True
-            time.sleep(0.5)
+        try:
+            pipeline = init_pipeline(GROQ_API_KEY)
+            if pipeline:
+                st.session_state.pipeline = pipeline
+                st.session_state.initialized = True
+            else:
+                st.warning("⚠️ Pipeline initialization skipped (models not available)")
+                st.session_state.initialized = True  # Still mark as initialized so app shows
+        except Exception as e:
+            st.warning(f"⚠️ Warning: {str(e)}")
+            st.session_state.initialized = True  # Still mark as initialized
+        time.sleep(0.5)
 
 # ============================================================================
 # HELPER FUNCTIONS
