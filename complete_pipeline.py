@@ -46,7 +46,7 @@ UNIFIED_EMBEDDINGS_PATH = STORAGE_BASE / "embeddings" / "unified_768_embeddings.
 UNIFIED_METADATA_PATH = STORAGE_BASE / "metadata" / "unified_768_metadata.json"
 """
 
-DATASET_PATH = r"Dataset\clean_complete_multimodal_dataset.csv"
+DATASET_PATH = "Dataset/clean_complete_multimodal_dataset.csv"  # ✓ Works everywhere
 STORAGE_BASE = Path("mammography_retrieval_storage")
 CROSS_ATTENTION_MODEL_PATH = STORAGE_BASE / "models" / "cross_attention_best.pth"
 UNIFIED_EMBEDDINGS_PATH = STORAGE_BASE / "embeddings" / "unified_768_embeddings.npy"
